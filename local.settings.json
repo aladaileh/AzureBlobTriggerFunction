@@ -1,14 +1,11 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage1": "DefaultEndpointsProtocol=https;AccountName=gasdata;AccountKey=3uSxBm73c2YLzhO6NR8JJT0yY8HfipmdyO/P3w3womgdtq32b9/OnHk8xylZ+gvE3juHgxDvILAn+AStcfMLpg==;EndpointSuffix=core.windows.net",
-    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=definitiontable;AccountKey=lueAqGiWHTkoz1ApVR9rn3apmDGQVcQ/eX4r0wQP/yN8a4GJ47lITaBQ3h9m5umx1lSIrIsxzxo4+AStjBadqw==;EndpointSuffix=core.windows.net",
+    "AzureWebJobsStorage1": "DefaultEndpointsProtocol=https;AccountName=scraped01;AccountKey=15+6KylsEf+KucNK4b+xmQ9bZuMxte7cAY4TR6i1c1xicNdSKz43VPQ15N3blyF9QzzhgrsCiSg0+ASttD8sxA==;EndpointSuffix=core.windows.net",
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
     "FUNCTIONS_EXTENSION_VERSION": "~4",
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "DefaultEndpointsProtocol=https;AccountName=definition2;AccountKey=PHRpVR/EN/wGFunLSxu+AvR0D3Svf7gNCGnfUfq/cFFaegxS4MBg/2JoPC+nN8Gdbac+/TQuQJ+S+AStOAF53g==;EndpointSuffix=core.windows.net",
-    "WEBSITE_CONTENTSHARE": "definition2c7930",
-    "APPINSIGHTS_INSTRUMENTATIONKEY": "cc578567-7a29-48a0-bd7d-85dfb07c2840",
-    "SqlConnectionString": "Server=tcp:ahmad1997.database.windows.net,1433;Initial Catalog=scrapeddata;Persist Security Info=False;User ID=ahmadriad;Password=Ara12345;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+    "SqlConnectionString": "Server=tcp:meuralengine.database.windows.net,1433;Initial Catalog=scrapeddata;Persist Security Info=False;User ID=ahmadriad;Password=Ara12345;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=scraped01;AccountKey=15+6KylsEf+KucNK4b+xmQ9bZuMxte7cAY4TR6i1c1xicNdSKz43VPQ15N3blyF9QzzhgrsCiSg0+ASttD8sxA==;EndpointSuffix=core.windows.net"
   }
 }

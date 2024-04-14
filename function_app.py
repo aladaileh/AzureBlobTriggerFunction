@@ -2,39 +2,34 @@ import azure.functions as func
 import logging
 from azure.functions.decorators.core import DataType
 import pandas as pd
-import pyodbc
 from datetime import datetime, timedelta
 from io import StringIO
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import json
 
 
-def get_db_connection():
-    server = 'ahmad1997.database.windows.net'
-    database = 'scrapeddata'
-    username = 'ahmadriad'
-    password = 'Ara12345'
-    driver = '{ODBC Driver 17 for SQL Server}'
-    connection_string = f"DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}"
-    return pyodbc.connect(connection_string)
 
 
 app = func.FunctionApp()
 
 @app.blob_trigger(arg_name="myblob", path="gasconsumption/inputs_df.csv",
-                               connection="AzureWebJobsStorage1") 
+                               connection="AzureWebJobsStorage") 
 @app.blob_input(arg_name="inputblob", path="gasconsumption/inputs_df.csv",
-                               connection="AzureWebJobsStorage1")
+                               connection="scraped01_STORAGE")
 @app.blob_input(arg_name="inputblob1", path="gasconsumption/AemoNomsAndForcastFlow.csv",
-                               connection="AzureWebJobsStorage1")
+                               connection="scraped01_STORAGE")
 @app.blob_input(arg_name="inputblob2", path="gasconsumption/KHNPAvialability.csv",
-                               connection="AzureWebJobsStorage1")
-@app.generic_output_binding(arg_name="toDoItems", type="sql", CommandText="dbo.DefTable", ConnectionStringSetting="SqlConnectionString",data_type=DataType.STRING)
-
-
-def DefinitionTable(myblob: func.InputStream, inputblob: str, inputblob1: str,inputblob2: str,  toDoItems: func.Out[func.SqlRow]) :
-    
+                               connection="scraped01_STORAGE")
+@app.sql_input(arg_name="DefTable",
+                        command_text="SELECT * FROM dbo.DefTable",
+                        command_type="Text",
+                        connection_string_setting="SqlConnectionString")
+@app.generic_output_binding(arg_name="toDoItems", type="sql", CommandText="dbo.DefTable",
+                             ConnectionStringSetting="SqlConnectionString",data_type=DataType.STRING)
+def DefinitionTable(myblob: func.InputStream , inputblob: str, inputblob1: str,inputblob2: str ,
+                   DefTable:  func.SqlRowList ,toDoItems: func.Out[func.SqlRow]):
     def send_email(smtp_server,port,sender,password,recipients,subject,body):
         msg=MIMEMultipart()
         msg['From']= sender
@@ -46,30 +41,24 @@ def DefinitionTable(myblob: func.InputStream, inputblob: str, inputblob1: str,in
         server.login(sender, password)
         server.send_message(msg)
         server.quit()
-            
+
     smtp_server='smtp.gmail.com'
     port=587
     recipients = ['aadylih@gmail.com']
     password='dkenpftyzirukknz'
     sender='ahmadriad19971@gmail.com'
-    subject="Error in Code (AemoNomsAndForecastFlow)"
-    
-    
-    
-    try:
-    # data = inputblob
-    # df = pd.read_csv(StringIO(data))
-        
-        
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        rows= cursor.execute("SELECT * FROM dbo.DefTable").fetchall()
-        existing_ids=pd.DataFrame(rows)
-        column_names=['CurveID','Location','Commodity','Period','Source','Senario','Type','SubType','SubSubTybe','Unit','HubType','FreeText','Timestamp']
-        e=[list(d) for d in existing_ids[0]]
+    subject="Deftable code"
 
-        dbc= pd.DataFrame(e, columns=column_names)
-        dbt=dbc.drop(['CurveID','Timestamp'], axis=1).fillna('')
+    rows = list(map(lambda r: json.loads(r.to_json()), DefTable))
+    existing_ids=pd.DataFrame(rows)
+
+    try:
+        if existing_ids.empty:
+
+                    column_names=['CurveID','Location','Commodity','Period','Source','Senario','Type','SubType','SubSubTybe','Unit','HubType','FreeText','Timestamp']
+                    existing_ids= pd.DataFrame(rows, columns=column_names)
+   
+        dbt=existing_ids.drop(['CurveID','Timestamp'], axis=1).fillna('')
 
         data = inputblob
         df0 = pd.read_csv(StringIO(data)).astype(object).fillna('')
@@ -129,8 +118,12 @@ def DefinitionTable(myblob: func.InputStream, inputblob: str, inputblob1: str,in
     )
 
         print(len(diff),diff)
+        send_email(smtp_server, port, sender, password, recipients, subject,f'{len(diff)}')  
     except Exception as e:
-        raise Exception(send_email(smtp_server, port, sender, password, recipients,subject, str(e)))
+        print(f"Error: {str(e)}")  
+        send_email(smtp_server, port, sender, password, recipients, subject, str(e))  
+        raise 
+
 
 
 @app.blob_trigger(arg_name="myblob", path="gasconsumption/inputs_df.csv",
@@ -141,8 +134,18 @@ def DefinitionTable(myblob: func.InputStream, inputblob: str, inputblob1: str,in
                                connection="AzureWebJobsStorage1")
 @app.blob_input(arg_name="inputblob02", path="gasconsumption/KHNPAvialability.csv",
                                connection="AzureWebJobsStorage1")
+@app.sql_input(arg_name="DefTable",
+                        command_text="SELECT * FROM dbo.DefTable",
+                        command_type="Text",
+                        connection_string_setting="SqlConnectionString")
+@app.sql_input(arg_name="TimeSeries",
+                        command_text="SELECT * FROM dbo.TimeSeries",
+                        command_type="Text",
+                        connection_string_setting="SqlConnectionString")
+
 @app.generic_output_binding(arg_name="toDoItems1", type="sql", CommandText="dbo.TimeSeries", ConnectionStringSetting="SqlConnectionString",data_type=DataType.STRING)
-def TimeSeriesTable(myblob: func.InputStream, inputblob0: str, inputblob01: str, inputblob02: str, toDoItems1: func.Out[func.SqlRow]) :
+def TimeSeriesTable(myblob: func.InputStream, inputblob0: str, inputblob01: str, inputblob02: str,
+                    DefTable:  func.SqlRowList , TimeSeries:  func.SqlRowList , toDoItems1: func.Out[func.SqlRow]) :
     def send_email(smtp_server,port,sender,password,recipients,subject,body):
         msg=MIMEMultipart()
         msg['From']= sender
@@ -160,27 +163,23 @@ def TimeSeriesTable(myblob: func.InputStream, inputblob0: str, inputblob01: str,
     recipients = ['aadylih@gmail.com']
     password='dkenpftyzirukknz'
     sender='ahmadriad19971@gmail.com'
-    subject="Error in Code (TimeSeriesTable)"
+    subject="(TimeSeriesTable)"
 
     try:
-            
-                
-        conn1 = get_db_connection()
-        cursor1 = conn1.cursor()
-        rows1= cursor1.execute("SELECT * FROM dbo.DefTable").fetchall()
-        existing_ids1=pd.DataFrame(rows1)
-        column_names1=['CurveID','Location','Commodity','Period','Source','Senario','Type','SubType','SubSubTybe','Unit','HubType','FreeText','Timestamp']
-        i=[list(g) for g in existing_ids1[0]]
 
-        dbDT1= pd.DataFrame(i, columns=column_names1).fillna('')
+        rows = list(map(lambda r: json.loads(r.to_json()), DefTable))
+        dbDT1=pd.DataFrame(rows)
+        if dbDT1.empty:
+                    column_names=['CurveID','Location','Commodity','Period','Source','Senario','Type','SubType','SubSubTybe','Unit','HubType','FreeText','Timestamp']
+                    dbDT1= pd.DataFrame(rows, columns=column_names)
+   
 
+        rows2= list(map(lambda r: json.loads(r.to_json()), TimeSeries))
+        dbt1=pd.DataFrame(rows2)
+        if dbt1.empty:
+                    column_names01=['CurveID','ValueDate','AsOfDate','Value','Timestamp']
+                    dbt1= pd.DataFrame(rows, columns=column_names01)
 
-        rows2= cursor1.execute("SELECT * FROM dbo.TimeSeries").fetchall()
-        existing_ids2=pd.DataFrame(rows2)
-        column_names2=['CurveID','ValueDate','AsOfDate','Value','Timestamp']
-        k=[list(d) for d in existing_ids2[0]]
-
-        dbt1= pd.DataFrame(k, columns=column_names2)
         dbTT1=dbt1.drop(['Timestamp'],axis=1).fillna('')
 
          
@@ -199,7 +198,6 @@ def TimeSeriesTable(myblob: func.InputStream, inputblob0: str, inputblob01: str,
  
 
         timetable = []
-        # counter = 0
         for data1 in dfs:
             date_columns = ['AsOfDate', 'ValueDate','Timestamp']
             data1[date_columns] = data1[date_columns].apply(pd.to_datetime)
@@ -214,10 +212,7 @@ def TimeSeriesTable(myblob: func.InputStream, inputblob0: str, inputblob01: str,
             x = Timseries_data_table.dtypes
             y= dbTT1.columns
             z= Timseries_data_table.columns
-            # print(v ,y)
-            # print(x,z)
-            # counter +=1
-            # print(counter)
+          
             if v.equals(x) and y.equals(z):
                 print('All good')
             else:
@@ -250,5 +245,8 @@ def TimeSeriesTable(myblob: func.InputStream, inputblob0: str, inputblob01: str,
         t=datetime.now().strftime('%Y-%m-%D %H:%M:%S') 
         send_email(smtp_server, port, sender, password, recipients,subject, f'uploaded {len(diff1)} data input at {t}')
     except Exception as e:
-        raise Exception(send_email(smtp_server, port, sender, password, recipients,subject, str(e)))
+        print(f"Error: {str(e)}")
+        send_email(smtp_server, port, sender, password, recipients, subject, str(e))  
+        raise  
+
 
