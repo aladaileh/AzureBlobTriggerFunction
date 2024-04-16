@@ -1,11 +1,11 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage1": "DefaultEndpointsProtocol=https;AccountName=scraped01;AccountKey=15+6KylsEf+KucNK4b+xmQ9bZuMxte7cAY4TR6i1c1xicNdSKz43VPQ15N3blyF9QzzhgrsCiSg0+ASttD8sxA==;EndpointSuffix=core.windows.net",
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
     "FUNCTIONS_EXTENSION_VERSION": "~4",
     "SqlConnectionString": "Server=tcp:meuralengine.database.windows.net,1433;Initial Catalog=scrapeddata;Persist Security Info=False;User ID=ahmadriad;Password=Ara12345;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
-    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=scraped01;AccountKey=15+6KylsEf+KucNK4b+xmQ9bZuMxte7cAY4TR6i1c1xicNdSKz43VPQ15N3blyF9QzzhgrsCiSg0+ASttD8sxA==;EndpointSuffix=core.windows.net"
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=scraped01;AccountKey=UC6djbzjSuT7I7s46AQTcPiveG73UNMzdGEQz0rMZufqQw3NvYxTeFkuERBngzI3EV8a4zZBHWfo+AStjleKTw==;EndpointSuffix=core.windows.net",
+    "AzureWebJobsStorage1": "DefaultEndpointsProtocol=https;AccountName=scraped01;AccountKey=UC6djbzjSuT7I7s46AQTcPiveG73UNMzdGEQz0rMZufqQw3NvYxTeFkuERBngzI3EV8a4zZBHWfo+AStjleKTw==;EndpointSuffix=core.windows.net"
   }
 }

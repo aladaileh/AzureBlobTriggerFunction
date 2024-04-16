@@ -17,11 +17,11 @@ app = func.FunctionApp()
 @app.blob_trigger(arg_name="myblob", path="gasconsumption/inputs_df.csv",
                                connection="AzureWebJobsStorage") 
 @app.blob_input(arg_name="inputblob", path="gasconsumption/inputs_df.csv",
-                               connection="scraped01_STORAGE")
+                               connection="AzureWebJobsStorage")
 @app.blob_input(arg_name="inputblob1", path="gasconsumption/AemoNomsAndForcastFlow.csv",
-                               connection="scraped01_STORAGE")
+                               connection="AzureWebJobsStorage")
 @app.blob_input(arg_name="inputblob2", path="gasconsumption/KHNPAvialability.csv",
-                               connection="scraped01_STORAGE")
+                               connection="AzureWebJobsStorage")
 @app.sql_input(arg_name="DefTable",
                         command_text="SELECT * FROM dbo.DefTable",
                         command_type="Text",
@@ -127,13 +127,13 @@ def DefinitionTable(myblob: func.InputStream , inputblob: str, inputblob1: str,i
 
 
 @app.blob_trigger(arg_name="myblob", path="gasconsumption/inputs_df.csv",
-                               connection="AzureWebJobsStorage1") 
+                               connection="AzureWebJobsStorage") 
 @app.blob_input(arg_name="inputblob0", path="gasconsumption/inputs_df.csv",
-                               connection="AzureWebJobsStorage1")
+                               connection="AzureWebJobsStorage")
 @app.blob_input(arg_name="inputblob01", path="gasconsumption/AemoNomsAndForcastFlow.csv",
-                               connection="AzureWebJobsStorage1")
+                               connection="AzureWebJobsStorage")
 @app.blob_input(arg_name="inputblob02", path="gasconsumption/KHNPAvialability.csv",
-                               connection="AzureWebJobsStorage1")
+                               connection="AzureWebJobsStorage")
 @app.sql_input(arg_name="DefTable",
                         command_text="SELECT * FROM dbo.DefTable",
                         command_type="Text",
@@ -182,6 +182,15 @@ def TimeSeriesTable(myblob: func.InputStream, inputblob0: str, inputblob01: str,
 
         dbTT1=dbt1.drop(['Timestamp'],axis=1).fillna('')
 
+        dbTT1['ValueDate'] = pd.to_datetime(dbTT1['ValueDate'])
+        dbTT1['AsOfDate'] = pd.to_datetime(dbTT1['AsOfDate'])
+        dbTT1['AsOfDate'] = dbTT1['AsOfDate'].dt.tz_localize(None)
+        dbTT1['ValueDate'] = dbTT1['ValueDate'].dt.tz_localize(None)
+
+
+        # dbTT1['AsOfDate'] = dbTT1['AsOfDate'].astype('datetime64[ns]')
+        
+
          
         try:
             df0 = inputblob0
@@ -212,11 +221,20 @@ def TimeSeriesTable(myblob: func.InputStream, inputblob0: str, inputblob01: str,
             x = Timseries_data_table.dtypes
             y= dbTT1.columns
             z= Timseries_data_table.columns
-          
+            # print(x)
+            # print(v)
+
             if v.equals(x) and y.equals(z):
                 print('All good')
             else:
-                raise Exception('Data type or column mismatch detected. Please check your data.')
+                try:
+                    dbTT1['Value'] = pd.to_numeric(dbTT1['Value'], errors='coerce')
+
+                except:
+                    
+                    raise Exception('Data type or column mismatch detected. Please check your data.')
+          
+          
             timetable.append(Timseries_data_table)
 
 
