@@ -17,17 +17,17 @@ app = func.FunctionApp()
 @app.blob_trigger(arg_name="myblob", path="gasconsumption/inputs_df.csv",
                                connection="AzureWebJobsStorage") 
 @app.blob_input(arg_name="inputblob", path="gasconsumption/inputs_df.csv",
-                               connection="AzureWebJobsStorage")
+                               connection="AzureWebJobsStorage1")
 @app.blob_input(arg_name="inputblob1", path="gasconsumption/AemoNomsAndForcastFlow.csv",
-                               connection="AzureWebJobsStorage")
+                               connection="AzureWebJobsStorage1")
 @app.blob_input(arg_name="inputblob2", path="gasconsumption/KHNPAvialability.csv",
-                               connection="AzureWebJobsStorage")
+                               connection="AzureWebJobsStorage1")
 @app.sql_input(arg_name="DefTable",
                         command_text="SELECT * FROM dbo.DefTable",
                         command_type="Text",
-                        connection_string_setting="SqlConnectionString")
+                        connection_string_setting="SqlConnectionString00")
 @app.generic_output_binding(arg_name="toDoItems", type="sql", CommandText="dbo.DefTable",
-                             ConnectionStringSetting="SqlConnectionString",data_type=DataType.STRING)
+                             ConnectionStringSetting="SqlConnectionString00",data_type=DataType.STRING)
 def DefinitionTable(myblob: func.InputStream , inputblob: str, inputblob1: str,inputblob2: str ,
                    DefTable:  func.SqlRowList ,toDoItems: func.Out[func.SqlRow]):
     def send_email(smtp_server,port,sender,password,recipients,subject,body):
@@ -129,21 +129,22 @@ def DefinitionTable(myblob: func.InputStream , inputblob: str, inputblob1: str,i
 @app.blob_trigger(arg_name="myblob", path="gasconsumption/inputs_df.csv",
                                connection="AzureWebJobsStorage") 
 @app.blob_input(arg_name="inputblob0", path="gasconsumption/inputs_df.csv",
-                               connection="AzureWebJobsStorage")
+                               connection="AzureWebJobsStorage1")
 @app.blob_input(arg_name="inputblob01", path="gasconsumption/AemoNomsAndForcastFlow.csv",
-                               connection="AzureWebJobsStorage")
+                               connection="AzureWebJobsStorage1")
 @app.blob_input(arg_name="inputblob02", path="gasconsumption/KHNPAvialability.csv",
-                               connection="AzureWebJobsStorage")
+                               connection="AzureWebJobsStorage1")
 @app.sql_input(arg_name="DefTable",
                         command_text="SELECT * FROM dbo.DefTable",
                         command_type="Text",
-                        connection_string_setting="SqlConnectionString")
+                        connection_string_setting="SqlConnectionString00")
 @app.sql_input(arg_name="TimeSeries",
                         command_text="SELECT * FROM dbo.TimeSeries",
                         command_type="Text",
-                        connection_string_setting="SqlConnectionString")
+                        connection_string_setting="SqlConnectionString01")
 
-@app.generic_output_binding(arg_name="toDoItems1", type="sql", CommandText="dbo.TimeSeries", ConnectionStringSetting="SqlConnectionString",data_type=DataType.STRING)
+@app.generic_output_binding(arg_name="toDoItems1", type="sql", CommandText="dbo.TimeSeries", 
+                            ConnectionStringSetting="SqlConnectionString01",data_type=DataType.STRING)
 def TimeSeriesTable(myblob: func.InputStream, inputblob0: str, inputblob01: str, inputblob02: str,
                     DefTable:  func.SqlRowList , TimeSeries:  func.SqlRowList , toDoItems1: func.Out[func.SqlRow]) :
     def send_email(smtp_server,port,sender,password,recipients,subject,body):
